@@ -35,7 +35,7 @@ Check out a live demo of the app at [URL of the demo page, if applicable].
    https://github.com/PARASMANI-KHUNTE/My-Budget-Planer
    ```
 
-2. Open the `MBPV3.html` file in your browser to start using the Budget Planner.
+2. Open the `index.html` file in your browser to start using the Budget Planner.
 
 3. Customize the project if you want to add more features, like integrating real-time cryptocurrency prices or creating a backend for data persistence.
 
