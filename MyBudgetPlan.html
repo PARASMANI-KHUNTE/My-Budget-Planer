@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Budget Planner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white shadow-lg rounded-lg p-8 max-w-lg w-full">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Budget Planner</h1>
+
+    <!-- Input Form -->
+    <div class="mb-4">
+      <label for="income" class="block text-gray-600 font-medium mb-2">Enter Your Monthly Income:</label>
+      <input id="income" type="number" placeholder="e.g., 50000" 
+        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+
+    <button onclick="calculateBudget()" 
+      class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
+      Calculate Budget
+    </button>
+
+    <!-- Budget Breakdown -->
+    <div id="results" class="mt-6 hidden">
+      <h2 class="text-xl font-bold text-gray-700 mb-4">Budget Breakdown</h2>
+      <ul class="space-y-3 text-gray-600">
+        <li><span class="font-medium">Needs (50%):</span> ₹<span id="needs"></span></li>
+        <li><span class="font-medium">Wants (30%):</span> ₹<span id="wants"></span></li>
+        <li><span class="font-medium">Savings (20%):</span> ₹<span id="savings"></span></li>
+        <li class="mt-3"><span class="font-medium">Savings Breakdown:</span></li>
+        <ul class="ml-6 space-y-2">
+          <li>Emergency Fund (40% of Savings): ₹<span id="emergency"></span></li>
+          <li>Investments (50% of Savings): ₹<span id="investments"></span></li>
+          <li>Goals (10% of Savings): ₹<span id="goals"></span></li>
+        </ul>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    function calculateBudget() {
+      const income = parseFloat(document.getElementById("income").value);
+
+      if (!income || income <= 0) {
+        alert("Please enter a valid income amount.");
+        return;
+      }
+
+      // Core Budget Allocation
+      const needs = income * 0.50;
+      const wants = income * 0.30;
+      const savings = income * 0.20;
+
+      // Savings Breakdown
+      const emergency = savings * 0.40;
+      const investments = savings * 0.50;
+      const goals = savings * 0.10;
+
+      // Update UI
+      document.getElementById("needs").textContent = needs.toFixed(2);
+      document.getElementById("wants").textContent = wants.toFixed(2);
+      document.getElementById("savings").textContent = savings.toFixed(2);
+      document.getElementById("emergency").textContent = emergency.toFixed(2);
+      document.getElementById("investments").textContent = investments.toFixed(2);
+      document.getElementById("goals").textContent = goals.toFixed(2);
+
+      // Show Results Section
+      document.getElementById("results").classList.remove("hidden");
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flexible Budget Planner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- For PDF export -->
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white shadow-lg rounded-lg p-8 max-w-lg w-full">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Flexible Budget Planner</h1>
+
+    <!-- Input Form -->
+    <div class="mb-4">
+      <label for="income" class="block text-gray-600 font-medium mb-2">Enter Your Monthly Income:</label>
+      <input id="income" type="number" placeholder="e.g., 50000" 
+        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+
+    <!-- Formula Selection -->
+    <div class="mb-4">
+      <label for="formula" class="block text-gray-600 font-medium mb-2">Choose a Budget Formula:</label>
+      <select id="formula" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="50-30-20">50% Needs - 30% Wants - 20% Savings</option>
+        <option value="60-20-20">60% Needs - 20% Wants - 20% Savings</option>
+        <option value="custom">Custom Formula</option>
+      </select>
+    </div>
+
+    <!-- Custom Formula Input -->
+    <div id="custom-formula" class="hidden space-y-2">
+      <label class="block text-gray-600 font-medium">Enter Custom Percentages (Total = 100):</label>
+      <div class="flex space-x-2">
+        <input id="custom-needs" type="number" placeholder="Needs (%)" 
+          class="w-1/3 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <input id="custom-wants" type="number" placeholder="Wants (%)" 
+          class="w-1/3 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <input id="custom-savings" type="number" placeholder="Savings (%)" 
+          class="w-1/3 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+    </div>
+
+    <button onclick="calculateBudget()" 
+      class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 mt-4">
+      Calculate Budget
+    </button>
+
+    <!-- Budget Breakdown -->
+    <div id="results" class="mt-6 hidden">
+      <h2 class="text-xl font-bold text-gray-700 mb-4">Budget Breakdown</h2>
+      <ul class="space-y-3 text-gray-600">
+        <li><span class="font-medium">Needs:</span> ₹<span id="needs"></span></li>
+        <li><span class="font-medium">Wants:</span> ₹<span id="wants"></span></li>
+        <li><span class="font-medium">Savings:</span> ₹<span id="savings"></span></li>
+      </ul>
+
+      <h3 class="text-lg font-semibold text-gray-700 mt-4">Savings Breakdown:</h3>
+      <ul class="ml-6 space-y-2 text-gray-600">
+        <li>Emergency Fund (40% of Savings): ₹<span id="emergency"></span></li>
+        <li>Investments (50% of Savings): ₹<span id="investments"></span></li>
+        <li>Goals (10% of Savings): ₹<span id="goals"></span></li>
+      </ul>
+
+      <h3 class="text-lg font-semibold text-gray-700 mt-4">Suggestions:</h3>
+      <ul id="suggestions" class="ml-6 space-y-2 text-gray-600">
+        <!-- Suggestions will appear here -->
+      </ul>
+
+      <div class="mt-6 flex space-x-4">
+        <button onclick="exportCSV()" class="w-1/2 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">
+          Export to CSV
+        </button>
+        <button onclick="exportPDF()" class="w-1/2 bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600">
+          Export to PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("formula").addEventListener("change", function () {
+      const customFormula = document.getElementById("custom-formula");
+      customFormula.classList.toggle("hidden", this.value !== "custom");
+    });
+
+    function calculateBudget() {
+      const income = parseFloat(document.getElementById("income").value);
+      const formula = document.getElementById("formula").value;
+
+      if (!income || income <= 0) {
+        alert("Please enter a valid income amount.");
+        return;
+      }
+
+      let needsPercent, wantsPercent, savingsPercent;
+
+      if (formula === "50-30-20") {
+        needsPercent = 50;
+        wantsPercent = 30;
+        savingsPercent = 20;
+      } else if (formula === "60-20-20") {
+        needsPercent = 60;
+        wantsPercent = 20;
+        savingsPercent = 20;
+      } else if (formula === "custom") {
+        needsPercent = parseFloat(document.getElementById("custom-needs").value);
+        wantsPercent = parseFloat(document.getElementById("custom-wants").value);
+        savingsPercent = parseFloat(document.getElementById("custom-savings").value);
+
+        if (needsPercent + wantsPercent + savingsPercent !== 100) {
+          alert("The percentages must add up to 100.");
+          return;
+        }
+      }
+
+      const needs = (income * needsPercent) / 100;
+      const wants = (income * wantsPercent) / 100;
+      const savings = (income * savingsPercent) / 100;
+
+      // Savings Breakdown
+      const emergency = (savings * 0.40);
+      const investments = (savings * 0.50);
+      const goals = (savings * 0.10);
+
+      document.getElementById("needs").textContent = needs.toFixed(2);
+      document.getElementById("wants").textContent = wants.toFixed(2);
+      document.getElementById("savings").textContent = savings.toFixed(2);
+      document.getElementById("emergency").textContent = emergency.toFixed(2);
+      document.getElementById("investments").textContent = investments.toFixed(2);
+      document.getElementById("goals").textContent = goals.toFixed(2);
+
+      // Suggestions for Savings and Expenses
+      const suggestions = [];
+      if (needsPercent > 60) suggestions.push("Consider reducing your 'Needs' expenses.");
+      if (wantsPercent > 30) suggestions.push("Cutting down on 'Wants' could help you save more.");
+      if (savingsPercent < 20) suggestions.push("Try to save more for long-term goals.");
+
+      document.getElementById("suggestions").innerHTML = suggestions.length ? suggestions.map(s => `<li>${s}</li>`).join('') : "<li>No suggestions for now.</li>";
+
+      document.getElementById("results").classList.remove("hidden");
+    }
+
+    // Export to CSV
+    function exportCSV() {
+      const income = document.getElementById("income").value;
+      const needs = document.getElementById("needs").textContent;
+      const wants = document.getElementById("wants").textContent;
+      const savings = document.getElementById("savings").textContent;
+      const emergency = document.getElementById("emergency").textContent;
+      const investments = document.getElementById("investments").textContent;
+      const goals = document.getElementById("goals").textContent;
+
+      const csvData = [
+        ["Income", income],
+        ["Needs", needs],
+        ["Wants", wants],
+        ["Savings", savings],
+        ["Emergency Fund", emergency],
+        ["Investments", investments],
+        ["Goals", goals]
+      ];
+
+      let csvContent = "data:text/csv;charset=utf-8," 
+        + csvData.map(e => e.join(",")).join("\n");
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "budget_plan.csv");
+      link.click();
+    }
+
+    // Export to PDF
+    function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.text("Budget Planner", 10, 10);
+      doc.text(`Income: ₹${document.getElementById("income").value}`, 10, 20);
+      doc.text(`Needs: ₹${document.getElementById("needs").textContent}`, 10, 30);
+      doc.text(`Wants: ₹${document.getElementById("wants").textContent}`, 10, 40);
+      doc.text(`Savings: ₹${document.getElementById("savings").textContent}`, 10, 50);
+      doc.text(`Emergency Fund: ₹${document.getElementById("emergency").textContent}`, 10, 60);
+      doc.text(`Investments: ₹${document.getElementById("investments").textContent}`, 10, 70);
+      doc.text(`Goals: ₹${document.getElementById("goals").textContent}`, 10, 80);
+      
+      doc.save("budget_plan.pdf");
+    }
+  </script>
+
+</body>
+</html>
